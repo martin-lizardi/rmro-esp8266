@@ -39,7 +39,7 @@ void loop()
 {
   Firebase.getString(firebaseData, "/actions/Mi primer robot/action");
   //Firebase.getString(firebaseData, "/actions/Mi%primer%robot/action");
-  //char action[1] = firebaseData.stringData()[0];
+
   Serial.println(firebaseData.stringData());
   if (firebaseData.stringData() == "C") {
     Serial.println("Centro");
@@ -47,78 +47,58 @@ void loop()
   } else if (firebaseData.stringData() == "\"N\"") {
     Serial.println("Adelante");
     Stop();
-    delay(10);
     Delante();
   } else if (firebaseData.stringData() == "\"S\"") {
     Serial.println("Atras");
     Stop();
-    delay(10);
     Atras();
   } else if (firebaseData.stringData() == "\"E\"") {
     Serial.println("Derecha");
     Stop();
-    delay(10);
     Derecha();
   } else if (firebaseData.stringData() == "\"W\"") {
     Serial.println("Izquierda");
     Stop();
-    delay(10);
     Izquierda();
   } else {
     Serial.println("Otro");
     Stop();
   }
 }
-    /*Delante();
-      delay(5000);
-      Stop();
-      delay(1000);
-      Atras();
-      delay(5000);
-      Stop();
-      delay(1000);
-      Derecha();
-      delay(3000);
-      Stop();
-      delay(1000);
-      Izquierda();
-      delay(3000);*/
 
-void Delante()
-  {
-    motorA_1.MoveFoward();
-    motorB_1.MoveFoward();
+void Delante() {
+  motorA_1.MoveFoward();
+  motorB_1.MoveFoward();
 
-    //motorA_2.MoveFoward();
-    //motorB_2.MoveFoward();
-  }
-void Atras()
-  {
-    motorA_1.MoveBackward();
-    motorB_1.MoveBackward();
+  //motorA_2.MoveFoward();
+  //motorB_2.MoveFoward();
+}
 
-    //motorA_2.MoveBackward();
-    //motorB_2.MoveBackward();
-  }
+void Atras() {
+  motorA_1.MoveBackward();
+  motorB_1.MoveBackward();
 
-void Derecha()
-  {
-    motorA_1.MoveFoward();
-    motorB_1.MoveBackward();
+  //motorA_2.MoveBackward();
+  //motorB_2.MoveBackward();
+}
 
-    //motorA_2.MoveFoward();
-    //motorB_2.MoveBackward();
-  }
-void Izquierda()
-  {
-    motorA_1.MoveBackward();
-    motorB_1.MoveFoward();
+void Derecha() {
+  motorA_1.MoveFoward();
+  motorB_1.MoveBackward();
 
-    //motorA_2.MoveBackward();
-    //motorB_2.MoveFoward();
-  }
-void Stop()
-{
+  //motorA_2.MoveFoward();
+  //motorB_2.MoveBackward();
+}
+
+void Izquierda() {
+  motorA_1.MoveBackward();
+  motorB_1.MoveFoward();
+
+  //motorA_2.MoveBackward();
+  //motorB_2.MoveFoward();
+}
+
+void Stop() {
   motorA_1.Stop();
   motorB_1.Stop();
 
