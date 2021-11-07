@@ -37,33 +37,9 @@ void setup() {
 
 void loop()
 {
-  Firebase.getString(firebaseData, "/actions/Mi primer robot/action");
-  //Firebase.getString(firebaseData, "/actions/Mi%primer%robot/action");
+  checkStatus();
 
-  Serial.println(firebaseData.stringData());
-  if (firebaseData.stringData() == "C") {
-    Serial.println("Centro");
-    Stop();
-  } else if (firebaseData.stringData() == "\"N\"") {
-    Serial.println("Adelante");
-    Stop();
-    Delante();
-  } else if (firebaseData.stringData() == "\"S\"") {
-    Serial.println("Atras");
-    Stop();
-    Atras();
-  } else if (firebaseData.stringData() == "\"E\"") {
-    Serial.println("Derecha");
-    Stop();
-    Derecha();
-  } else if (firebaseData.stringData() == "\"W\"") {
-    Serial.println("Izquierda");
-    Stop();
-    Izquierda();
-  } else {
-    Serial.println("Otro");
-    Stop();
-  }
+  
 }
 
 void Delante() {
@@ -104,4 +80,38 @@ void Stop() {
 
   //motorA_2.Stop();
   //motorB_2.Stop();
+}
+
+void checkStatus() {
+  Firebase.setString(firebaseData, "/actions/Mi primer robot/robot", "true");
+}
+
+void readMoveStatus() {
+  Firebase.getString(firebaseData, "/actions/Mi primer robot/action");
+  //Firebase.getString(firebaseData, "/actions/Mi%primer%robot/action");
+
+  Serial.println(firebaseData.stringData());
+  if (firebaseData.stringData() == "C") {
+    Serial.println("Centro");
+    Stop();
+  } else if (firebaseData.stringData() == "\"N\"") {
+    Serial.println("Adelante");
+    Stop();
+    Delante();
+  } else if (firebaseData.stringData() == "\"S\"") {
+    Serial.println("Atras");
+    Stop();
+    Atras();
+  } else if (firebaseData.stringData() == "\"E\"") {
+    Serial.println("Derecha");
+    Stop();
+    Derecha();
+  } else if (firebaseData.stringData() == "\"W\"") {
+    Serial.println("Izquierda");
+    Stop();
+    Izquierda();
+  } else {
+    Serial.println("Otro");
+    Stop();
+  }
 }
