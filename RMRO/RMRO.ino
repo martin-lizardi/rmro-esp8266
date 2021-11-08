@@ -160,3 +160,12 @@ void move() {
     Stop();
   }
 }
+
+void getSpeed() {
+  Firebase.getInt(firebaseData, path + "/vX");
+  int vX = firebaseData.intData();
+  Firebase.getInt(firebaseData, path + "/vY");
+  int vY = firebaseData.intData();
+  Serial.println(vX);
+  Serial.println(vY);
+}
