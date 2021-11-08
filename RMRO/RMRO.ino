@@ -45,6 +45,10 @@ void setup() {
 
 void loop()
 {
+  if (countVerification == 0) {
+    sentSignal();
+  }
+  
   if (countVerification <= 0) {
     allowMove = checkStatus();
   } else if(countVerification >= 5) {
