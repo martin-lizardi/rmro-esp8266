@@ -131,26 +131,27 @@ bool checkStatus() {
 void move() {
   Firebase.getString(firebaseData, path + "/direction");
 
-  Serial.println(firebaseData.stringData());
-  if (firebaseData.stringData() == "\"C\"") {
+  String direction = firebaseData.stringData();
+  Serial.println(direction);
+  if (direction == "\"C\"") {
     Serial.println("Centro");
     Stop();
-  } else if (firebaseData.stringData() == "\"N\"") {
+  } else if (direction == "\"N\"") {
     Serial.println("Adelante");
     Stop();
     delay(10);
     Delante();
-  } else if (firebaseData.stringData() == "\"S\"") {
+  } else if (direction == "\"S\"") {
     Serial.println("Atras");
     Stop();
     delay(10);
     Atras();
-  } else if (firebaseData.stringData() == "\"E\"") {
+  } else if (direction == "\"E\"") {
     Serial.println("Derecha");
     Stop();
     delay(10);
     Derecha();
-  } else if (firebaseData.stringData() == "\"W\"") {
+  } else if (direction == "\"W\"") {
     Serial.println("Izquierda");
     Stop();
     delay(10);
