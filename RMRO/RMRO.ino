@@ -134,18 +134,22 @@ void move() {
   } else if (firebaseData.stringData() == "\"N\"") {
     Serial.println("Adelante");
     Stop();
+    delay(10);
     Delante();
   } else if (firebaseData.stringData() == "\"S\"") {
     Serial.println("Atras");
     Stop();
+    delay(10);
     Atras();
   } else if (firebaseData.stringData() == "\"E\"") {
     Serial.println("Derecha");
     Stop();
+    delay(10);
     Derecha();
   } else if (firebaseData.stringData() == "\"W\"") {
     Serial.println("Izquierda");
     Stop();
+    delay(10);
     Izquierda();
   } else {
     Serial.println("Otro");
