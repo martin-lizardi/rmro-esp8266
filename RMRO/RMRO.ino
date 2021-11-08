@@ -17,6 +17,11 @@ Motor motorB_1 = Motor(4, 5);
 //Motor motorA_2 = Motor(12, 13);
 //Motor motorB_2 = Motor(14, 15);
 
+String path = "/actions/Mi primer robot";
+// String path = "/actions/Mi%primer%robot";
+bool allowMove = false;
+short countVerification = 0;
+
 void setup() {
   Serial.begin(9600);
   
@@ -33,13 +38,23 @@ void setup() {
   Serial.print("IP Address is : ");
   Serial.println(WiFi.localIP()); //print local IP address
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH); // connect to firebase
+
+  sentSignal();
 }
 
 void loop()
 {
-  checkStatus();
+  if (countVerification <= 0) {
+    allowMove = checkStatus();
+  } else if(countVerification >= 5) {
+    countVerification = -1;
+  }
 
-  
+  if (allowMove) {
+    move();
+  }
+
+  countVerification++;
 }
 
 void Delante() {
@@ -82,13 +97,34 @@ void Stop() {
   //motorB_2.Stop();
 }
 
-void checkStatus() {
-  Firebase.setString(firebaseData, "/actions/Mi primer robot/robot", "true");
+// Indicar que el robot estya en linea
+void sentSignal() {
+  Firebase.setBool(firebaseData, path + "/robot", true);
 }
 
-void readMoveStatus() {
-  Firebase.getString(firebaseData, "/actions/Mi primer robot/action");
-  //Firebase.getString(firebaseData, "/actions/Mi%primer%robot/action");
+// Verificar que el control esta en linea
+bool controlOnline() {
+  Firebase.getBool(firebaseData, path + "/control");
+  bool control = firebaseData.boolData();
+
+  return control;
+}
+
+// Verificar que el robot esta en linea
+bool robotOnline() {
+  Firebase.getBool(firebaseData, path + "/robot");
+  bool robot = firebaseData.boolData();
+
+  return robot;
+}
+
+// Verificar que el control y robot estan en linea
+bool checkStatus() {
+  return controlOnline() && robotOnline();
+}
+
+void move() {
+  Firebase.getString(firebaseData, path + "/action");
 
   Serial.println(firebaseData.stringData());
   if (firebaseData.stringData() == "C") {
