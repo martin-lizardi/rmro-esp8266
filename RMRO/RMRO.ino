@@ -1,6 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <FirebaseESP8266.h>
 #include <Motor.h>
+#include <Servo.h>
 
 #define FIREBASE_HOST "https://rmro-5d8ff-default-rtdb.firebaseio.com"
 #define FIREBASE_AUTH "9pnprE3COTZSqFNvSLRcR0IohdAUoUmGg2AAnEbP"
@@ -8,23 +9,26 @@ FirebaseData firebaseData;
 
 // #define WIFI_SSID "Jorge's Room" // input your home or public wifi name
 // #define WIFI_PASSWORD "Tostatronic 1$" //password of wifi ssid
-// #define WIFI_SSID "DESKTOP-RCPTMBJ 0128"
-// #define WIFI_PASSWORD "!d49K968" //password of wifi ssid
-#define WIFI_SSID "Totalplay-2.4G-4588"
-#define WIFI_PASSWORD "Wv82VejXELbVSRUu" //password of wifi ssid
+#define WIFI_SSID "DESKTOP-RCPTMBJ 0128"
+#define WIFI_PASSWORD "!d49K968" //password of wifi ssid
+// #define WIFI_SSID "Totalplay-2.4G-4588"
+// #define WIFI_PASSWORD "Wv82VejXELbVSRUu" //password of wifi ssid
 
 Motor motorA_1 = Motor(0, 2);
 Motor motorB_1 = Motor(4, 5);
 
-//Motor motorA_2 = Motor(12, 13);
-//Motor motorB_2 = Motor(14, 15);
+Servo servo_1;  // Definimos los servos que vamos a utilizar
+Servo servo_2;
+
+const int pin = 13;
 
 String path = "/actions/Mi primer robot";
 bool allowMove = false;
+bool allowArm = false;
 short countVerification = 0;
 
 void setup() {
-  Serial.begin(9600);
+  /*Serial.begin(9600);
   
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD); //try to connect with wifi
   Serial.print("Connecting to ");
@@ -40,17 +44,26 @@ void setup() {
   Serial.println(WiFi.localIP()); //print local IP address
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH); // connect to firebase
 
-  sentSignal();
+  servo_1.attach(12);
+  servo_2.attach(14);
+
+  pinMode(pin, OUTPUT);
+
+  sentSignal();*/
 }
 
 void loop()
 {
+  motorA_1.SetMotorSpeed(150);
+  motorB_1.SetMotorSpeed(150);
+  Delante();
+  /*
   if (countVerification == 0) {
     sentSignal();
   }
   
   if (countVerification <= 0) {
-    allowMove = checkStatus();
+    checkStatus();
   } else if(countVerification >= 5) {
     countVerification = -1;
   }
@@ -58,49 +71,38 @@ void loop()
   if (allowMove) {
     move();
     // getSpeed();
+  } else if (allowArm) {
+    Serial.println("BRAZO");
+    moveArm();
+    magnet();
   }
 
-  countVerification++;
+  countVerification++;*/
 }
 
 void Delante() {
   motorA_1.MoveFoward();
   motorB_1.MoveFoward();
-
-  //motorA_2.MoveFoward();
-  //motorB_2.MoveFoward();
 }
 
 void Atras() {
   motorA_1.MoveBackward();
   motorB_1.MoveBackward();
-
-  //motorA_2.MoveBackward();
-  //motorB_2.MoveBackward();
 }
 
 void Derecha() {
   motorA_1.MoveFoward();
   motorB_1.MoveBackward();
-
-  //motorA_2.MoveFoward();
-  //motorB_2.MoveBackward();
 }
 
 void Izquierda() {
   motorA_1.MoveBackward();
   motorB_1.MoveFoward();
-
-  //motorA_2.MoveBackward();
-  //motorB_2.MoveFoward();
 }
 
 void Stop() {
   motorA_1.Stop();
   motorB_1.Stop();
-
-  //motorA_2.Stop();
-  //motorB_2.Stop();
 }
 
 // Indicar que el robot estya en linea
@@ -124,9 +126,29 @@ bool robotOnline() {
   return robot;
 }
 
-// Verificar que el control y robot estan en linea
-bool checkStatus() {
-  return controlOnline() && robotOnline();
+// Verificar que el brazo esta en activado
+bool activedArm() {
+  Firebase.getBool(firebaseData, path + "/arm");
+  bool arm = firebaseData.boolData();
+
+  return arm;
+}
+
+// Verificar que el control y robot estan en linea;
+// Verificar si el brazo esta activado
+void checkStatus() {
+  if (controlOnline() && robotOnline()) {
+    if (activedArm()) {
+      allowArm = true;
+      allowMove = false;
+    } else {
+      allowArm = false;
+      allowMove = true;
+    }
+  } else {
+    allowMove = false;
+    allowArm = false;
+  }
 }
 
 void move() {
@@ -188,11 +210,34 @@ void adjustSpeed(uint8_t speed) {
   motorB_1.SetMotorSpeed(speed);
 }
 
-void getSpeed() {
-  Firebase.getInt(firebaseData, path + "/vX");
-  int vX = firebaseData.intData();
-  Firebase.getInt(firebaseData, path + "/vY");
-  int vY = firebaseData.intData();
-  Serial.println(vX);
-  Serial.println(vY);
+void initArm() {
+  // Posicionar en su posicion original el robot
 }
+
+void moveArm() {
+  Firebase.getBool(firebaseData, path + "/activatedArm");
+  if (firebaseData.boolData()) {
+    Serial.println("Externo");
+    servo_1.write(40);
+    delay(1000);
+    servo_2.write(80);
+  } else {
+    Serial.println("Interno");
+    servo_1.write(80);
+    delay(1000);
+    servo_2.write(40);
+  }
+}
+
+void magnet() {
+  Firebase.getBool(firebaseData, path + "/magnet");
+  if (firebaseData.boolData()) {
+    Serial.println("IMAN A");
+    digitalWrite(pin, HIGH);   // poner el Pin en HIGH
+    delay(200);               // esperar un segundo
+  } else {
+    Serial.println("IMAN N");
+    digitalWrite(pin, LOW);    // poner el Pin en LOW
+    delay(200);
+  }
+ }
