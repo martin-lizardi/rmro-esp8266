@@ -57,6 +57,7 @@ void loop()
 
   if (allowMove) {
     move();
+    getSpeed();
   }
 
   countVerification++;
@@ -100,6 +101,11 @@ void Stop() {
 
   //motorA_2.Stop();
   //motorB_2.Stop();
+}
+
+void adjustSpeed(uint8_t speed) {
+  motorA_1.SetMotorSpeed(speed);
+  motorB_1.SetMotorSpeed(speed);
 }
 
 // Indicar que el robot estya en linea
