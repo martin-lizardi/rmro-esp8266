@@ -57,7 +57,7 @@ void loop()
 
   if (allowMove) {
     move();
-    getSpeed();
+    // getSpeed();
   }
 
   countVerification++;
@@ -103,11 +103,6 @@ void Stop() {
   //motorB_2.Stop();
 }
 
-void adjustSpeed(uint8_t speed) {
-  motorA_1.SetMotorSpeed(speed);
-  motorB_1.SetMotorSpeed(speed);
-}
-
 // Indicar que el robot estya en linea
 void sentSignal() {
   Firebase.setBool(firebaseData, path + "/robot", true);
@@ -141,31 +136,56 @@ void move() {
   Serial.println(direction);
   if (direction == "\"C\"") {
     Serial.println("Centro");
+    //adjustSpeed((uint8_t) 0);
     Stop();
   } else if (direction == "\"N\"") {
     Serial.println("Adelante");
     Stop();
     delay(10);
+    //adjustSpeed(getYSpeed());
     Delante();
   } else if (direction == "\"S\"") {
     Serial.println("Atras");
     Stop();
     delay(10);
+    //adjustSpeed(getYSpeed());
     Atras();
   } else if (direction == "\"E\"") {
     Serial.println("Derecha");
     Stop();
     delay(10);
+    //adjustSpeed(getXSpeed());
     Derecha();
   } else if (direction == "\"W\"") {
     Serial.println("Izquierda");
     Stop();
     delay(10);
+    //adjustSpeed(getXSpeed());
     Izquierda();
   } else {
     Serial.println("Otro");
+    //adjustSpeed((uint8_t) 0);
     Stop();
   }
+}
+
+uint8_t getXSpeed() {
+  Firebase.getInt(firebaseData, path + "/vX");
+  return (uint8_t) firebaseData.intData();
+}
+
+uint8_t getYSpeed() {
+  Firebase.getInt(firebaseData, path + "/vY");
+  return (uint8_t) firebaseData.intData();
+}
+
+void adjustSpeed(uint8_t speed) {
+  if (speed < 0) {
+    speed = -speed;
+  }
+  Serial.println(speed);
+  motorA_1.SetMotorSpeed(speed);
+  motorB_1.SetMotorSpeed(speed);
 }
 
 void getSpeed() {
