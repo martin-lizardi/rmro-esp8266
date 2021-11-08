@@ -8,8 +8,10 @@ FirebaseData firebaseData;
 
 // #define WIFI_SSID "Jorge's Room" // input your home or public wifi name
 // #define WIFI_PASSWORD "Tostatronic 1$" //password of wifi ssid
-#define WIFI_SSID "DESKTOP-RCPTMBJ 0128"
-#define WIFI_PASSWORD "!d49K968" //password of wifi ssid
+// #define WIFI_SSID "DESKTOP-RCPTMBJ 0128"
+// #define WIFI_PASSWORD "!d49K968" //password of wifi ssid
+#define WIFI_SSID "Totalplay-2.4G-4588"
+#define WIFI_PASSWORD "Wv82VejXELbVSRUu" //password of wifi ssid
 
 Motor motorA_1 = Motor(0, 2);
 Motor motorB_1 = Motor(4, 5);
@@ -18,7 +20,6 @@ Motor motorB_1 = Motor(4, 5);
 //Motor motorB_2 = Motor(14, 15);
 
 String path = "/actions/Mi primer robot";
-// String path = "/actions/Mi%primer%robot";
 bool allowMove = false;
 short countVerification = 0;
 
@@ -124,10 +125,10 @@ bool checkStatus() {
 }
 
 void move() {
-  Firebase.getString(firebaseData, path + "/action");
+  Firebase.getString(firebaseData, path + "/direction");
 
   Serial.println(firebaseData.stringData());
-  if (firebaseData.stringData() == "C") {
+  if (firebaseData.stringData() == "\"C\"") {
     Serial.println("Centro");
     Stop();
   } else if (firebaseData.stringData() == "\"N\"") {
