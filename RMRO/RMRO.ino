@@ -7,10 +7,10 @@
 #define FIREBASE_AUTH "9pnprE3COTZSqFNvSLRcR0IohdAUoUmGg2AAnEbP"
 FirebaseData firebaseData;
 
-// #define WIFI_SSID "Jorge's Room" // input your home or public wifi name
-// #define WIFI_PASSWORD "Tostatronic 1$" //password of wifi ssid
-#define WIFI_SSID "DESKTOP-RCPTMBJ 0128"
-#define WIFI_PASSWORD "!d49K968" //password of wifi ssid
+#define WIFI_SSID "Jorge's Room" // input your home or public wifi name
+#define WIFI_PASSWORD "Tostatronic 1$" //password of wifi ssid
+// #define WIFI_SSID "DESKTOP-RCPTMBJ 0128"
+// #define WIFI_PASSWORD "!d49K968" //password of wifi ssid
 // #define WIFI_SSID "Totalplay-2.4G-4588"
 // #define WIFI_PASSWORD "Wv82VejXELbVSRUu" //password of wifi ssid
 
@@ -22,14 +22,15 @@ Servo servo_2;
 
 const int pin = 13;
 
-String path = "/actions/Mi primer robot";
+const String path = "/actions/Mi primer robot";
 bool allowMove = false;
 bool allowArm = false;
 short countVerification = 0;
+short servoPosition = 45;
 
 void setup() {
-  /*Serial.begin(9600);
-  
+  Serial.begin(9600);
+
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD); //try to connect with wifi
   Serial.print("Connecting to ");
   Serial.print(WIFI_SSID);
@@ -49,22 +50,21 @@ void setup() {
 
   pinMode(pin, OUTPUT);
 
-  sentSignal();*/
+  sentSignal();
+
+  initArm();
 }
 
 void loop()
 {
-  motorA_1.SetMotorSpeed(150);
-  motorB_1.SetMotorSpeed(150);
-  Delante();
-  /*
+  // Senial para indicar que el robot esta en linea
   if (countVerification == 0) {
     sentSignal();
   }
-  
+
   if (countVerification <= 0) {
     checkStatus();
-  } else if(countVerification >= 5) {
+  } else if (countVerification >= 5) {
     countVerification = -1;
   }
 
@@ -72,12 +72,11 @@ void loop()
     move();
     // getSpeed();
   } else if (allowArm) {
-    Serial.println("BRAZO");
     moveArm();
     magnet();
   }
 
-  countVerification++;*/
+  countVerification++;
 }
 
 void Delante() {
@@ -212,32 +211,38 @@ void adjustSpeed(uint8_t speed) {
 
 void initArm() {
   // Posicionar en su posicion original el robot
+  for(servoPosition; servoPosition <= 180; servoPosition++) {
+    servo_1.write(servoPosition);
+    servo_2.write(servoPosition);
+    delay(10);
+  }
 }
 
 void moveArm() {
   Firebase.getBool(firebaseData, path + "/activatedArm");
   if (firebaseData.boolData()) {
     Serial.println("Externo");
-    servo_1.write(40);
-    delay(1000);
-    servo_2.write(80);
+    for(servoPosition; servoPosition > 0; servoPosition--) {
+      servo_1.write(servoPosition);
+      servo_2.write(servoPosition); 
+      delay(10);
+    }
   } else {
     Serial.println("Interno");
-    servo_1.write(80);
-    delay(1000);
-    servo_2.write(40);
+    for(servoPosition; servoPosition <= 180; servoPosition++) {
+      servo_1.write(servoPosition);
+      servo_2.write(servoPosition);
+      delay(10);
+    }
   }
 }
 
 void magnet() {
   Firebase.getBool(firebaseData, path + "/magnet");
   if (firebaseData.boolData()) {
-    Serial.println("IMAN A");
     digitalWrite(pin, HIGH);   // poner el Pin en HIGH
-    delay(200);               // esperar un segundo
   } else {
-    Serial.println("IMAN N");
     digitalWrite(pin, LOW);    // poner el Pin en LOW
     delay(200);
   }
- }
+}
