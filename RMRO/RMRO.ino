@@ -14,19 +14,20 @@ FirebaseData firebaseData;
 // #define WIFI_SSID "Totalplay-2.4G-4588"
 // #define WIFI_PASSWORD "Wv82VejXELbVSRUu" //password of wifi ssid
 
-Motor motorA_1 = Motor(0, 2);
-Motor motorB_1 = Motor(4, 5);
+// Parameters (pin, pin, enable, speed)
+Motor motorA_1 = Motor(0, 2, 14, 10); // Left motor
+Motor motorB_1 = Motor(4, 5, 15, 10); // Right motor
 
-Servo servo_1;  // Definimos los servos que vamos a utilizar
-Servo servo_2;
+Servo servo_1; // Bottom servomotor
+Servo servo_2; // Top servomotor
 
-const int pin = 13;
+const int pinMagnet = 13; // Electromagnet
 
 const String path = "/actions/Mi primer robot";
 bool allowMove = false;
 bool allowArm = false;
 short countVerification = 0;
-short servoPosition = 45;
+short servoPosition = 45; // Degrees for servomotors
 
 void setup() {
   Serial.begin(9600);
@@ -45,14 +46,14 @@ void setup() {
   Serial.println(WiFi.localIP()); //print local IP address
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH); // connect to firebase
 
-  servo_1.attach(12);
-  servo_2.attach(14);
+  servo_1.attach(12); // Assign Pin for servo
+  servo_2.attach(14); // Assign Pin for servo
 
-  pinMode(pin, OUTPUT);
+  pinMode(pinMagnet, OUTPUT); // Enable pin
 
-  sentSignal();
+  sentSignal(); // Robot online
 
-  initArm();
+  initArm(); // Init position for arm
 }
 
 void loop()
@@ -70,7 +71,6 @@ void loop()
 
   if (allowMove) {
     move();
-    // getSpeed();
   } else if (allowArm) {
     moveArm();
     magnet();
@@ -104,7 +104,7 @@ void Stop() {
   motorB_1.Stop();
 }
 
-// Indicar que el robot estya en linea
+// Indicar que el robot esta en linea
 void sentSignal() {
   Firebase.setBool(firebaseData, path + "/robot", true);
 }
@@ -137,14 +137,21 @@ bool activedArm() {
 // Verificar si el brazo esta activado
 void checkStatus() {
   if (controlOnline() && robotOnline()) {
+    // Control y robot en linea
     if (activedArm()) {
+      // Activar brazo
+      // Desactivar movimiento
       allowArm = true;
       allowMove = false;
     } else {
+      // Desactivar brazo
+      // Activar movimiento
       allowArm = false;
       allowMove = true;
     }
   } else {
+    // Desactivar brazo
+    // Desactivar movimiento
     allowMove = false;
     allowArm = false;
   }
@@ -201,6 +208,7 @@ uint8_t getYSpeed() {
 }
 
 void adjustSpeed(uint8_t speed) {
+  // Validar si el valor es negativo para convertir a positivo
   if (speed < 0) {
     speed = -speed;
   }
@@ -210,7 +218,7 @@ void adjustSpeed(uint8_t speed) {
 }
 
 void initArm() {
-  // Posicionar en su posicion original el robot
+  // Ajustar en su posicion inicial el robot (dejar objeto)
   for(servoPosition; servoPosition <= 180; servoPosition++) {
     servo_1.write(servoPosition);
     servo_2.write(servoPosition);
@@ -220,14 +228,15 @@ void initArm() {
 
 void moveArm() {
   Firebase.getBool(firebaseData, path + "/activatedArm");
-  if (firebaseData.boolData()) {
+  // Validar que posicion de tomar el brazo
+  if (firebaseData.boolData()) { // Brazo en posicion para tomar objeto
     Serial.println("Externo");
     for(servoPosition; servoPosition > 0; servoPosition--) {
       servo_1.write(servoPosition);
       servo_2.write(servoPosition); 
       delay(10);
     }
-  } else {
+  } else { // Brazo en posicion para dejar objeto
     Serial.println("Interno");
     for(servoPosition; servoPosition <= 180; servoPosition++) {
       servo_1.write(servoPosition);
@@ -237,12 +246,14 @@ void moveArm() {
   }
 }
 
+// Control electroiman
 void magnet() {
   Firebase.getBool(firebaseData, path + "/magnet");
-  if (firebaseData.boolData()) {
-    digitalWrite(pin, HIGH);   // poner el Pin en HIGH
-  } else {
-    digitalWrite(pin, LOW);    // poner el Pin en LOW
+  // Validar estado del iman
+  if (firebaseData.boolData()) { // Activar iman
+    digitalWrite(pinMagnet, HIGH);
+  } else {  // Desactivar iman
+    digitalWrite(pinMagnet, LOW);
     delay(200);
   }
 }
